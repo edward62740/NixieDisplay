@@ -3,8 +3,7 @@
 Arduino library for interfacing GPIO to generic nixie tubes or other numerical displays with discrete 0-9 control pins. 
 
 ## Prerequisites
-Arduino compatible microcontroller
-Sufficient microcontroller GPIO, or GPIO expander
+Arduino compatible microcontroller	Sufficient microcontroller GPIO, or GPIO expander
 
 ## How to use
 
