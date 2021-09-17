@@ -5,6 +5,8 @@ Arduino library for interfacing GPIO to generic nixie tubes or other numerical d
 ## Prerequisites
 * Arduino compatible microcontroller
 * Sufficient microcontroller GPIO, or GPIO expander
+
+\
 \
 ## How to use
 \
