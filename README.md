@@ -6,7 +6,6 @@ Arduino library for interfacing GPIO to generic nixie tubes or other numerical d
 * Arduino compatible microcontroller
 * Sufficient microcontroller GPIO, or GPIO expander
 \
-\
 ## How to use
 \
 Declare an instance of NumericalDisplay_t and pinout array for each tube. The pinout must be ordered from 0 to 9.
