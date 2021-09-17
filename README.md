@@ -31,3 +31,12 @@ Write a number to the tubes. The first two arguments are the number to be writte
 uint32_t x = 123456;
 num2disp_err_t num2disp_writeNumberToFullDisplay(x, x - 1, true);
 ```
+\
+Add this function to the .ino file. It must contain a method for writing to GPIO. 
+```C++
+void num2disp_gpio_write(uint8_t pin, bool data) {
+    digitalWrite(pin, data); // write to GPIO
+    
+    xxxx.write(pin, data) // write to GPIO expander or other IO device
+}
+```
