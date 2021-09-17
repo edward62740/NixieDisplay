@@ -28,6 +28,6 @@ num2disp_createInstanceFullDisplay(&tube1, &tube2, &tube3, &tube4, &tube5, &tube
 \
 Write a number to the tubes. The first two arguments are the number to be written and the previous number (i.e the one currently on the tubes). The final argument is an option to enable crossfade transistion.
 ```C++
-num2disp_err_t num2disp_writeNumberToFullDisplay(x,
-		x - 1, true);
+uint32_t x = 123456;
+num2disp_err_t num2disp_writeNumberToFullDisplay(x, x - 1, true);
 ```
