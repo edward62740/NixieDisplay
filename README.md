@@ -21,12 +21,12 @@ Link the pinout to the NumericalDisplay_t.
 num2disp_createInstanceNumericalDisplay(&tube1, pinout1);
 ```
 \
-Link all the instances of NumericalDisplay_t to be controlled as a single set. The last two arguments are the number of active tubes (of 6) and offset from left respectively.
+Link all the instances of NumericalDisplay_t to be controlled as a single set. The last two arguments are the number of active tubes (of 6) and right shift respectively.
 ```C++
 num2disp_createInstanceFullDisplay(&tube1, &tube2, &tube3, &tube4, &tube5, &tube6, 6, 0);
 ```
 \
-Write a number to the tubes. The first two arguments are the number to be written and the previous number (i.e the one currently on the tubes). The final argument is an option to enable crossfade transistion.
+Write a number to the tubes. The first two arguments are the number to be written and the previous number (i.e the one currently on the tubes). The final argument is an option to enable crossfade transition.
 ```C++
 uint32_t x = 123456;
 num2disp_writeNumberToFullDisplay(x, x - 1, true);
