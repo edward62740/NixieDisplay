@@ -38,6 +38,7 @@ bool num2disp_gpio_write(uint8_t pin, bool data) {
     digitalWrite(pin, data); // write to GPIO
     
     xxxx.write(pin, data) // write to GPIO expander or other IO device
+    return false;
 }
 ```
 \
