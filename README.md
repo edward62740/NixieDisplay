@@ -34,7 +34,7 @@ num2disp_writeNumberToFullDisplay(x, x - 1, true);
 \
 Add this function to the .ino file. It must contain a method for writing to GPIO. Return false if no error.
 ```C++
-void num2disp_gpio_write(uint8_t pin, bool data) {
+bool num2disp_gpio_write(uint8_t pin, bool data) {
     digitalWrite(pin, data); // write to GPIO
     
     xxxx.write(pin, data) // write to GPIO expander or other IO device
