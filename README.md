@@ -29,14 +29,19 @@ num2disp_createInstanceFullDisplay(&tube1, &tube2, &tube3, &tube4, &tube5, &tube
 Write a number to the tubes. The first two arguments are the number to be written and the previous number (i.e the one currently on the tubes). The final argument is an option to enable crossfade transistion.
 ```C++
 uint32_t x = 123456;
-num2disp_err_t num2disp_writeNumberToFullDisplay(x, x - 1, true);
+num2disp_writeNumberToFullDisplay(x, x - 1, true);
 ```
 \
-Add this function to the .ino file. It must contain a method for writing to GPIO. 
+Add this function to the .ino file. It must contain a method for writing to GPIO. Return false if no error.
 ```C++
 void num2disp_gpio_write(uint8_t pin, bool data) {
     digitalWrite(pin, data); // write to GPIO
     
     xxxx.write(pin, data) // write to GPIO expander or other IO device
 }
+```
+\
+Run a cathode protection routine. Select style CATHODE_PROTECTION_STYLE_WAVE or CATHODE_PROTECTION_STYLE_SLOT for different display appearances.
+```C++
+num2disp_runCathodePoisoningProtection(50, CATHODE_PROTECTION_STYLE_WAVE );
 ```
