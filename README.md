@@ -41,7 +41,7 @@ bool num2disp_gpio_write(uint8_t pin, bool data) {
 }
 ```
 \
-Run a cathode protection routine. Select style CATHODE_PROTECTION_STYLE_WAVE or CATHODE_PROTECTION_STYLE_SLOT for different display appearances.
+Run a cathode protection routine. Pass the number of iterations to cycle through 0-9, then select style CATHODE_PROTECTION_STYLE_WAVE or CATHODE_PROTECTION_STYLE_SLOT for different display appearances.
 ```C++
 num2disp_runCathodePoisoningProtection(50, CATHODE_PROTECTION_STYLE_WAVE );
 ```
