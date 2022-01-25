@@ -37,6 +37,11 @@ Write a number to the display.
 display.write(uint32_t num);
 ```
 \
+Write a standard C time_t (time) to the display.
+```C++
+display.write(&tm);
+```
+\
 Clear the display. This blanks the display and may not have the same effect as disabling the nixie tube's power supply.
 ```C++
 display.clear();
@@ -47,7 +52,7 @@ Option to enable/disable crossfading of digits between write() calls. Defaults t
 display.setCrossfade(bool crossfade)
 ```
 \
-Run cathode protection type nixie_display_protection_t for a duration of ms (minimum duration is CATHODE_PROTECTION_INTER_MS*10). Optional parameter CATHODE_PROTECTION_INTER_MS to determine on time of each digit.
+Run cathode protection of type nixie_display_protection_t for a duration of ms (minimum duration is CATHODE_PROTECTION_INTER_MS*10). Optional parameter CATHODE_PROTECTION_INTER_MS to determine on time of each digit.
 ```C++
 display.runProtection(nixie_display_protection_t type, uint32_t ms, uint32_t CATHODE_PROTECTION_INTER_MS = 15);
 ```
