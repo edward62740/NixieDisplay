@@ -1,6 +1,6 @@
-# num2disp
+# NixieDisplay
 
-Arduino library for interfacing GPIO to generic nixie tubes or other numerical displays with discrete 0-9 control pins. 
+Arduino library for controlling up to 6 nixie tubes with standard display functions.
 
 ## Prerequisites
 * Arduino compatible microcontroller
@@ -10,39 +10,55 @@ Arduino library for interfacing GPIO to generic nixie tubes or other numerical d
 
 ## How to use
 \
-Declare an instance of NumericalDisplay_t and pinout array for each tube. The pinout must be ordered from 0 to 9.
+Declare uint8_t arrays pinout1 through pinout6, containing the control pins for each digit ordered from 0 to 9.
 ```C++
 NumericalDisplay_t tube1;
 uint8_t pinout1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+uint8_t pinout2[10] = {....}
+...
+...
+uint8_t pinout6[10] = {....}
 ```
 \
-Link the pinout to the NumericalDisplay_t.
+Instantiate the NixieDisplay object.
 ```C++
-num2disp_createInstanceNumericalDisplay(&tube1, pinout1);
+    NixieDisplay display(uint8_t active, uint8_t ctrl, 
+    uint8_t pinout1[], uint8_t pinout2[], uint8_t pinout3[], uint8_t pinout4[], uint8_t pinout5[], uint8_t pinout6[]);
 ```
 \
-Link all the instances of NumericalDisplay_t to be controlled as a single set. The last two arguments are the number of active tubes (of 6) and right shift respectively.
+Initialize display.
 ```C++
-num2disp_createInstanceFullDisplay(&tube1, &tube2, &tube3, &tube4, &tube5, &tube6, 6, 0);
+display.init();
 ```
 \
-Write a number to the tubes. The first two arguments are the number to be written and the previous number (i.e the one currently on the tubes). The final argument is an option to enable crossfade transition.
+
+Write a number to the display.
 ```C++
-uint32_t x = 123456;
-num2disp_writeNumberToFullDisplay(x, x - 1, true);
+display.write(uint32_t num);
 ```
 \
+Clear the display. This blanks the display and may not have the same effect as disabling the nixie tube's power supply.
+```C++
+display.clear();
+```
+\
+Option to enable/disable crossfading of digits between write() calls. Defaults to true.
+```C++
+display.setCrossfade(bool crossfade)
+```
+\
+Run cathode protection type nixie_display_protection_t for a duration of ms (minimum duration is CATHODE_PROTECTION_INTER_MS*10). Optional parameter CATHODE_PROTECTION_INTER_MS to determine on time of each digit.
+```C++
+display.runProtection(nixie_display_protection_t type, uint32_t ms, uint32_t CATHODE_PROTECTION_INTER_MS = 15);
+```
+\
+
 Add this function to the .ino file. It must contain a method for writing to GPIO. Return false if no error.
 ```C++
-bool num2disp_gpio_write(uint8_t pin, bool data) {
+bool platformGPIOWrite(uint8_t pin, bool data) {
     digitalWrite(pin, data); // write to GPIO
     
     xxxx.write(pin, data) // write to GPIO expander or other IO device
     return false;
 }
-```
-\
-Run a cathode protection routine. Pass the number of iterations to cycle through 0-9, then select style CATHODE_PROTECTION_STYLE_WAVE or CATHODE_PROTECTION_STYLE_SLOT for different display appearances. Warning: this is a blocking function for the duration of the iterations.
-```C++
-num2disp_runCathodePoisoningProtection(50, CATHODE_PROTECTION_STYLE_WAVE );
 ```
