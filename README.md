@@ -31,7 +31,6 @@ Initialize display.
 display.init();
 ```
 \
-
 Write a number to the display.
 ```C++
 display.write(uint32_t num);
@@ -52,7 +51,6 @@ Run cathode protection type nixie_display_protection_t for a duration of ms (min
 display.runProtection(nixie_display_protection_t type, uint32_t ms, uint32_t CATHODE_PROTECTION_INTER_MS = 15);
 ```
 \
-
 Add this function to the .ino file. It must contain a method for writing to GPIO. Return false if no error.
 ```C++
 bool platformGPIOWrite(uint8_t pin, bool data) {
