@@ -1,7 +1,6 @@
 # NixieDisplay
 
-Arduino library for controlling up to 6 nixie tubes with standard display functions.
-
+Arduino library for controlling up to 6 nixie tubes using standard display control methods.
 ## Prerequisites
 * Arduino compatible microcontroller
 * Sufficient microcontroller GPIO, or GPIO expander
