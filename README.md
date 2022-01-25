@@ -11,15 +11,14 @@ Arduino library for controlling up to 6 nixie tubes using standard display contr
 \
 Declare uint8_t arrays pinout1 through pinout6, containing the control pins for each digit ordered from 0 to 9.
 ```C++
-NumericalDisplay_t tube1;
 uint8_t pinout1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 uint8_t pinout2[10] = {....}
 ...
 ...
 uint8_t pinout6[10] = {....}
 ```
-\
-Instantiate the NixieDisplay object.
+
+Instantiate the NixieDisplay object. Pinout arguments are in order from left to right. 
 ```C++
     NixieDisplay display(uint8_t active, uint8_t ctrl, 
     uint8_t pinout1[], uint8_t pinout2[], uint8_t pinout3[], uint8_t pinout4[], uint8_t pinout5[], uint8_t pinout6[]);
