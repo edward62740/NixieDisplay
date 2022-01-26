@@ -1,4 +1,4 @@
-# num2disp
+# NixieDisplay
 
 Arduino library for controlling up to 6 nixie tubes with standard display functions.
 
