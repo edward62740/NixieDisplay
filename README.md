@@ -1,6 +1,6 @@
 # NixieDisplay
 
-C++ abstraction for controlling up to 6 nixie tubes. Compatible with most platforms that provide standard gpio write and delay/sleep functions.
+C++ abstraction for controlling up to 6 nixie tubes. Compatible with most platforms that provide standard GPIO write and delay/sleep functions.
 
 ## Prerequisites
 * Any modern microcontroller 
