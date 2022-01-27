@@ -1,11 +1,10 @@
 # NixieDisplay
 
-Arduino library for controlling up to 6 nixie tubes with standard display functions.
+C++ abstraction for controlling up to 6 nixie tubes. Compatible with most platforms that provide standard gpio write and delay/sleep functions.
 
 ## Prerequisites
-* Arduino compatible microcontroller
-* Sufficient microcontroller GPIO, or GPIO expander
-
+* Any modern microcontroller 
+* Sufficient GPIO to interface with the tubes, or GPIO expander.
 
 
 ## How to use
@@ -51,12 +50,18 @@ Run cathode protection type nixie_display_protection_t for a duration of ms (min
 display.runProtection(nixie_display_protection_t type, uint32_t ms, uint32_t CATHODE_PROTECTION_INTER_MS = 15);
 ```
 \
-Add this function to the .ino file. It must contain a method for writing to GPIO. Return false if no error.
+Add this function to the .ino file. It must contain a platform-specific method for writing to GPIO. Return false if no error.
 ```C++
 bool platformGPIOWrite(uint8_t pin, bool data) {
-    digitalWrite(pin, data); // write to GPIO
-    
     xxxx.write(pin, data) // write to GPIO expander or other IO device
     return false;
 }
+```
+\
+Add this function to the .ino file. It must contain a platform-specific method for milisecond delays. Return false if no error.
+```C++
+void platformDelayMs(uint32_t ms){
+  vTaskDelay(ms);
+}
+
 ```
