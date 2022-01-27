@@ -22,8 +22,8 @@ uint8_t pinout6[10] = {....}
 \
 Instantiate the NixieDisplay object.
 ```C++
-    NixieDisplay display(uint8_t active, uint8_t ctrl, 
-    uint8_t pinout1[], uint8_t pinout2[], uint8_t pinout3[], uint8_t pinout4[], uint8_t pinout5[], uint8_t pinout6[]);
+NixieDisplay display(uint8_t active, uint8_t ctrl, 
+uint8_t pinout1[], uint8_t pinout2[], uint8_t pinout3[], uint8_t pinout4[], uint8_t pinout5[], uint8_t pinout6[]);
 ```
 \
 Initialize display.
