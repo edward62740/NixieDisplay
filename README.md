@@ -58,7 +58,7 @@ bool platformGPIOWrite(uint8_t pin, bool data) {
 }
 ```
 \
-Add this function to the main.c file. It must contain a platform-specific method for milisecond delays. Return false if no error.
+Add this function to the main.c file. It must contain a platform-specific method for milisecond delays.
 ```C++
 void platformDelayMs(uint32_t ms){
   vTaskDelay(ms);
