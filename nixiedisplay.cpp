@@ -408,6 +408,7 @@ nixie_display_err_t NixieDisplay::runProtection(nixie_display_protection_t type,
 
     setCrossfade(tmp_crossfade);
     setScrollback(tmp_scrollback);
-    clear();
+    write(0);
+
     return ret;
 }
