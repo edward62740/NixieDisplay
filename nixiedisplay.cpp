@@ -408,7 +408,15 @@ nixie_display_err_t NixieDisplay::runProtection(nixie_display_protection_t type,
 
     setCrossfade(tmp_crossfade);
     setScrollback(tmp_scrollback);
-    write(0);
+    for (uint8_t n = 0; n < DisplayStruct_t.active; n++)
+    {
+        uint8_t current = tmp_current[n + DisplayStruct_t.offset];
+        uint8_t prev = tmp_prev[n + DisplayStruct_t.offset];
+        if (writeTubeInternal(n, current, prev) != NO_ERR)
+        {
+            return ERR_INT;
+        }
+    }
 
     return ret;
 }
