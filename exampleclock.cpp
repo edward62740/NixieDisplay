@@ -186,23 +186,28 @@ void tubes(void *pvParameters)
     time.tm_hour = now.hour();
     time.tm_min = now.minute();
     time.tm_sec = now.second();
-    display.writeTime(&time);
+    if (time.tm_hour < 24 && time.tm_min < 60 && time.tm_sec < 60)
+    {
+      display.writeTime(&time);
+      if ((time.tm_min % 10) != 0 && is_run)
+      {
+        is_run = false;
+      }
+    }
+
     digitalWrite(23, LOW);
+
     if ((time.tm_min % 10) == 0 && !is_run)
     {
       display.runProtection(CATHODE_PROTECTION_STYLE_SEQUENTIAL, 5000);
       is_run = true;
-    }
-    else if ((time.tm_min % 10) != 0)
-    {
-      is_run = false;
     }
     if (now_time == 031500 || now_time == 034500)
     {
       display.runProtection(CATHODE_PROTECTION_STYLE_SLOT, 120000, 50);
     }
 
-    vTaskDelay(50);
+    vTaskDelay(250);
   }
 }
 void ifdb(void *pvParameters)
