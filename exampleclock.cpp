@@ -17,14 +17,6 @@ void tubes(void *pvParameters);
 void leds(void *pvParameters);
 bool platformGPIOWrite(uint8_t pin, bool data);
 void platformDelayMs(uint32_t ms);
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-  uint8_t temprature_sens_read();
-#ifdef __cplusplus
-}
-#endif
 
 String hostname = "NIXIE TUBE CLOCK";
 
@@ -44,8 +36,8 @@ String hostname = "NIXIE TUBE CLOCK";
 Point Clock("Clock");
 
 const char *ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = 0;
-const int daylightOffset_sec = 0;
+const long gmtOffset_sec = 28800;
+const int daylightOffset_sec = 28800;
 
 #define LED_COUNT 6
 /* Pin configuration */
@@ -88,8 +80,6 @@ NixieDisplay display(6, 0, pinout1, pinout2, pinout3, pinout4, pinout5, pinout6)
 TimerHandle_t ifdbTimer;
 
 /* Global variables */
-uint32_t prev_time = 0;
-uint32_t now_time = 0;
 uint32_t hr, mins, sec;
 bool is_run = false;
 bool post = false;
@@ -97,7 +87,8 @@ bool post = false;
 struct
 {
   uint32_t IFDB_ERR_COUNT = 0;
-  float CPU_TEMP = (float)((temprature_sens_read() - 32) / 1.8);
+  float BOARD_TEMP = 0;
+  float BOARD_HUM = 0;
 } info;
 
 void vTimerCallback1(TimerHandle_t ifdbTimer)
@@ -109,8 +100,6 @@ void setup()
 {
 
   /* Instantiate tubes */
-
-  Wire.begin(SDA, SCL, I2C_CLK_RATE);
   pinMode(nEN_170, OUTPUT);
   pinMode(EN_5, OUTPUT);
   pinMode(LED1, OUTPUT);
@@ -120,16 +109,18 @@ void setup()
   digitalWrite(LED3, HIGH);
   digitalWrite(EN_5, HIGH);
   digitalWrite(nEN_170, LOW);
+  Wire.begin(SDA, SCL, I2C_CLK_RATE);
+  delay(250);
   display.init();
   display.setCrossfade(true);
   display.setScrollback(true);
   if (faboRTC.searchDevice())
   {
-    Serial.println("configuring RTC");
+    Serial.println("configuring FaBo RTC I2C Brick");
     faboRTC.configure();
   }
   Serial.begin(115200);
-  Serial.println("[INIT] TEMP SENSOR OK");
+
 
   gp0.configuration();     // soft reset and configuration
   gp0.portMode(0, OUTPUT); // set port directions
@@ -148,7 +139,8 @@ void setup()
     gp0.digitalWrite(i, LOW);
     gp1.digitalWrite(i, LOW);
   }
-
+  sht20.initSHT20(Wire);
+  Serial.println(" TEMP SENSOR OK");
   xTaskCreatePinnedToCore(
       tubes,   //Task Function
       "tubes", //Name of Task
@@ -168,13 +160,13 @@ void setup()
       0);     //Target Core
 
   xTaskCreatePinnedToCore(
-      leds,   //Task Function
-      "leds", //Name of Task
-      10000,  //Stack size of task
-      NULL,   //Parameter of the task
-      0,      //Priority of the task
-      NULL,   //Task handle to keep track of the created task
-      tskNO_AFFINITY);     //Target Core
+      leds,            //Task Function
+      "leds",          //Name of Task
+      10000,           //Stack size of task
+      NULL,            //Parameter of the task
+      0,               //Priority of the task
+      NULL,            //Task handle to keep track of the created task
+      tskNO_AFFINITY); //Target Core
 
   vTaskDelete(NULL);
 }
@@ -195,13 +187,7 @@ void tubes(void *pvParameters)
     time.tm_min = now.minute();
     time.tm_sec = now.second();
     display.writeTime(&time);
-    Serial.print(now.hour());
-    Serial.print(now.minute());
-    Serial.println(now.second());
-
     digitalWrite(23, LOW);
-
-    prev_time = now_time;
     if ((time.tm_min % 10) == 0 && !is_run)
     {
       display.runProtection(CATHODE_PROTECTION_STYLE_SEQUENTIAL, 5000);
@@ -227,12 +213,11 @@ void ifdb(void *pvParameters)
   WiFi.setHostname(hostname.c_str()); //define hostname
   while (WiFi.status() != WL_CONNECTED)
   {
-    Serial.println("[INIT] ERROR CONNECTING TO WIFI");
+    Serial.println(" ERROR CONNECTING TO WIFI");
     WiFi.disconnect();
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     delay(2000);
   }
-
   // Init and get the time
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   struct tm timeinfo;
@@ -241,7 +226,6 @@ void ifdb(void *pvParameters)
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     delay(500);
   }
-
   faboRTC.setDate(2021, 5, 12, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
   configTzTime("SGT-8", "pool.ntp.org", "time.nis.gov");
   client.setHTTPOptions(HTTPOptions().httpReadTimeout(200));
@@ -257,7 +241,6 @@ void ifdb(void *pvParameters)
     Serial.print("InfluxDB connection failed: ");
     Serial.println(client.getLastErrorMessage());
   }
-  Serial.println("[INIT] IFDB CONNECTION OK");
   ifdbTimer = xTimerCreate("Timer1", 5000, pdTRUE, (void *)0, vTimerCallback1);
   xTimerStart(ifdbTimer, 0);
   while (1)
@@ -265,12 +248,17 @@ void ifdb(void *pvParameters)
 
     if (post)
     {
+      info.BOARD_TEMP = (float)sht20.readTemperature();
+      info.BOARD_HUM = (float)sht20.readHumidity();
       Clock.clearFields();
       Clock.clearTags();
       Clock.addTag("UID", "N/A");
+      if (info.BOARD_TEMP < 100)
+      {
+        Clock.addField("Board Temp", info.BOARD_TEMP);
+        Clock.addField("Board Hum", info.BOARD_HUM);
+      }
       Clock.addField("InfluxDB Error Count", info.IFDB_ERR_COUNT);
-      Clock.addField("CPU Temp", info.CPU_TEMP);
-      Serial.println("POSTED");
       digitalWrite(LED4, HIGH);
       if (!client.writePoint(Clock))
       {
@@ -299,7 +287,7 @@ void leds(void *pvParameters)
 
 bool platformGPIOWrite(uint8_t pin, bool data)
 {
-   
+
   if (pin >= 40)
   {
     pin = pin - 40;
@@ -311,7 +299,7 @@ bool platformGPIOWrite(uint8_t pin, bool data)
     gp0.digitalWrite(pin, data);
     return true;
   }
-   
+
   return false;
 }
 
