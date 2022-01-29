@@ -21,7 +21,7 @@ uint8_t pinout6[10] = {....}
 \
 Instantiate the NixieDisplay object.
 ```C++
-NixieDisplay display(uint8_t active, uint8_t ctrl, 
+NixieDisplay display(uint8_t active, uint8_t offset, 
 uint8_t pinout1[], uint8_t pinout2[], uint8_t pinout3[], uint8_t pinout4[], uint8_t pinout5[], uint8_t pinout6[]);
 ```
 \
@@ -35,12 +35,22 @@ Write a number to the display.
 display.write(uint32_t num);
 ```
 \
+Or write time to the display.
+```C++
+display.writeTime(struct tm *time);
+```
+\
 Clear the display. This blanks the display and may not have the same effect as disabling the nixie tube's power supply.
 ```C++
 display.clear();
 ```
 \
 Option to enable/disable crossfading of digits between write() calls. Defaults to true.
+```C++
+display.setCrossfade(bool crossfade)
+```
+\
+Option to enable/disable scrollback of digits between write() calls. Defaults to true.
 ```C++
 display.setCrossfade(bool crossfade)
 ```
