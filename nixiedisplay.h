@@ -27,7 +27,7 @@ struct DisplayStruct
     uint8_t active;
     uint8_t offset;
     bool crossfade = true;
-    bool scrollback = false;
+    bool scrollback = true;
 };
 
 typedef enum err_codes

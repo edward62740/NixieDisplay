@@ -8,7 +8,7 @@
 
 struct DisplayStruct DisplayStruct_t;
 uint8_t tmp_current[6];
-uint8_t tmp_prev[6];
+uint8_t tmp_prev[6] = {9, 9, 9, 9, 9, 9};
 
 /**
  @brief Constructor for NixieDisplay
@@ -27,12 +27,15 @@ NixieDisplay::NixieDisplay(uint8_t active, uint8_t offset,
 {
     DisplayStruct_t.active = active;
     DisplayStruct_t.offset = offset;
-    for (int j = 0; j < 6; j++)
+
+    for (int i = 0; i < 10; i++)
     {
-        for (int i = 0; i < 10; i++)
-        {
-            DisplayStruct_t.tube[j].pinout[i] = pinout1[i];
-        }
+        DisplayStruct_t.tube[0].pinout[i] = pinout1[i];
+        DisplayStruct_t.tube[1].pinout[i] = pinout2[i];
+        DisplayStruct_t.tube[2].pinout[i] = pinout3[i];
+        DisplayStruct_t.tube[3].pinout[i] = pinout4[i];
+        DisplayStruct_t.tube[4].pinout[i] = pinout5[i];
+        DisplayStruct_t.tube[5].pinout[i] = pinout6[i];
     }
 }
 
@@ -41,7 +44,7 @@ NixieDisplay::NixieDisplay(uint8_t active, uint8_t offset,
  */
 NixieDisplay::~NixieDisplay(void)
 {
-     for (int j = 0; j < 6; j++)
+    for (int j = 0; j < 6; j++)
     {
         memset(DisplayStruct_t.tube[j].pinout, 0, sizeof(DisplayStruct_t.tube[j].pinout));
     }
@@ -55,6 +58,7 @@ nixie_display_err_t NixieDisplay::init()
 {
     nixie_display_err_t ret = NO_ERR;
     ret = clear();
+    ret = write(999999);
     return ret;
 }
 
@@ -83,8 +87,8 @@ nixie_display_err_t NixieDisplay::write(uint32_t num)
         {
             return ERR_INT;
         }
-        memcpy(tmp_prev, tmp_current, sizeof(tmp_current));
     }
+    memcpy(tmp_prev, tmp_current, sizeof(tmp_current));
     return ret;
 }
 
@@ -101,21 +105,45 @@ nixie_display_err_t NixieDisplay::writeTime(struct tm *time)
         return ERR_PARAM;
     }
     tmp_current[5] = time->tm_sec % 10;
-    tmp_current[4] = (time->tm_sec - tmp_current[5]) / 10;
+    if ((time->tm_sec - tmp_current[5]) == 0)
+    {
+        tmp_current[4] = 0;
+    }
+    else
+    {
+        tmp_current[4] = (time->tm_sec - tmp_current[5]) / 10;
+    }
     tmp_current[3] = time->tm_min % 10;
-    tmp_current[2] = (time->tm_min - tmp_current[5]) / 10;
+    if ((time->tm_min - tmp_current[3]) == 0)
+    {
+        tmp_current[2] = 0;
+    }
+    else
+    {
+        tmp_current[2] = (time->tm_min - tmp_current[3]) / 10;
+    }
     tmp_current[1] = time->tm_hour % 10;
-    tmp_current[0] = (time->tm_hour - tmp_current[5]) / 10;
+    if ((time->tm_hour - tmp_current[1]) == 0)
+    {
+        tmp_current[0] = 0;
+    }
+    else
+    {
+        tmp_current[0] = (time->tm_hour - tmp_current[1]) / 10;
+    }
     for (uint8_t n = 0; n < DisplayStruct_t.active; n++)
     {
         uint8_t current = tmp_current[n + DisplayStruct_t.offset];
         uint8_t prev = tmp_prev[n + DisplayStruct_t.offset];
-        if (writeTubeInternal(n, current, prev) != NO_ERR)
+        if (current != prev)
         {
-            return ERR_INT;
+            if (writeTubeInternal(n, current, prev) != NO_ERR)
+            {
+                return ERR_INT;
+            }
         }
-        memcpy(tmp_prev, tmp_current, sizeof(tmp_current));
     }
+    memcpy(tmp_prev, tmp_current, sizeof(tmp_current));
     return ret;
 }
 
@@ -132,8 +160,8 @@ nixie_display_err_t NixieDisplay::writeSingleTube(uint8_t tube, uint8_t value)
     {
         return ERR_PARAM;
     }
-    tmp_current[tube + 1] = (uint8_t)value;
-    if (writeTubeInternal(tube + 1, tmp_current[tube + 1 + DisplayStruct_t.offset], tmp_prev[tube + 1 + DisplayStruct_t.offset]) != NO_ERR)
+    tmp_current[tube - 1] = (uint8_t)value;
+    if (writeTubeInternal(tube - 1, tmp_current[tube - 1 + DisplayStruct_t.offset], tmp_prev[tube - 1 + DisplayStruct_t.offset]) != NO_ERR)
     {
         return ERR_INT;
     }
@@ -155,22 +183,25 @@ nixie_display_err_t NixieDisplay::writeTubeInternal(uint8_t tube, uint8_t curren
         (uint8_t)DisplayStruct_t.tube[tube].pinout[current];
     uint8_t gpio_digit_prev =
         (uint8_t)DisplayStruct_t.tube[tube].pinout[prev];
-    if (!DisplayStruct_t.scrollback && gpio_digit_current == 0)
+    if (DisplayStruct_t.scrollback && current == 0 && prev != 0)
     {
-        for (uint8_t i = gpio_digit_prev; i > 0; i--)
+        if (!platformGPIOWrite(DisplayStruct_t.tube[tube].pinout[prev], 0))
         {
-
-            if (!platformGPIOWrite(i, 1))
+            return ERR_FAIL;
+        }
+        for (uint8_t i = prev; i > 0; i--)
+        {
+            if (!platformGPIOWrite(DisplayStruct_t.tube[tube].pinout[i], 1))
             {
                 return ERR_FAIL;
             }
             platformDelayMs(CROSSFADE_PULSE_CYCLE_MS);
-            if (!platformGPIOWrite(i, 0))
+            if (!platformGPIOWrite(DisplayStruct_t.tube[tube].pinout[i], 0))
             {
                 return ERR_FAIL;
             }
         }
-        if (!platformGPIOWrite(0, 1))
+        if (!platformGPIOWrite(gpio_digit_current, 1))
         {
             return ERR_FAIL;
         }
@@ -302,25 +333,29 @@ nixie_display_err_t NixieDisplay::runProtection(nixie_display_protection_t type,
     {
         if (type == CATHODE_PROTECTION_STYLE_SLOT)
         {
-            if (tmp_internal == 0)
+            for (int i = 0; i < 10; i++)
             {
-                ret = write(0);
-            }
-            else
-            {
-                ret = write(tmp_internal);
-                if (ret != NO_ERR)
+                if (tmp_internal == 0)
                 {
-                    return ret;
+                    ret = write(0);
                 }
-            }
-            if (tmp_internal == 999999)
-            {
-                tmp_internal = 0;
-            }
-            else
-            {
-                tmp_internal += 111111;
+                else
+                {
+                    ret = write(tmp_internal);
+                    if (ret != NO_ERR)
+                    {
+                        return ret;
+                    }
+                }
+                if (tmp_internal == 999999)
+                {
+                    tmp_internal = 0;
+                }
+                else
+                {
+                    tmp_internal += 111111;
+                }
+                platformDelayMs(CATHODE_PROTECTION_INTER_MS);
             }
         }
         else if (type == CATHODE_PROTECTION_STYLE_WAVE)
