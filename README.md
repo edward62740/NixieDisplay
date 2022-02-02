@@ -11,7 +11,6 @@ C++ abstraction for controlling up to 6 nixie tubes. Compatible with most platfo
 \
 Declare uint8_t arrays pinout1 through pinout6, containing the control pins for each digit ordered from 0 to 9.
 ```C++
-NumericalDisplay_t tube1;
 uint8_t pinout1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 uint8_t pinout2[10] = {....}
 ...
