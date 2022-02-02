@@ -52,7 +52,7 @@ display.setCrossfade(bool crossfade)
 \
 Option to enable/disable scrollback of digits between write() calls. Defaults to true.
 ```C++
-display.setCrossfade(bool crossfade)
+display.setScrollback(bool scrollback)
 ```
 \
 Run cathode protection type nixie_display_protection_t for a duration of ms (minimum duration is CATHODE_PROTECTION_INTER_MS*10). Optional parameter CATHODE_PROTECTION_INTER_MS to determine on time of each digit.
