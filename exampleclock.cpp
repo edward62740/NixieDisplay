@@ -299,7 +299,6 @@ void leds(void *pvParameters)
   ws2812fx.setColor(RED);
   while (1)
   {
-    
     ws2812fx.service();
     vTaskDelay(1);
   }
@@ -330,9 +329,3 @@ void platformDelayMs(uint32_t ms)
   digitalWrite(LED2, HIGH);
 }
 
-void platformDelayMs(uint32_t ms)
-{
-  digitalWrite(LED2, LOW);
-  vTaskDelay(ms);
-  digitalWrite(LED2, HIGH);
-}
