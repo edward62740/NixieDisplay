@@ -1,4 +1,4 @@
-# NixieDisplay
+# NixieDisplay HAL
 
 C++ abstraction for controlling up to 6 nixie tubes. Compatible with most platforms that provide standard GPIO write and delay/sleep functions. Put the c++ and h files in a folder called "src" to use with Arduino.
 
